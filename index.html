@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="cn">
+
+<head>
+	<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<meta charset="utf-8">
+	<title>Bonjour! Doc&Log</title>
+</head>
+
+<body>
+	<div id="app">
+		<el-row>
+			<el-col :span="24">
+				<div class="grid-content bg-purple-dark">
+					<div class="nav">Bonjour! Doc&Log</div>
+				</div>
+			</el-col>
+		</el-row>
+		<div class="container">
+			<template v-if="!goAdding">
+				<div class="state">
+					<el-card class="box-card">
+						<div slot="header" class="clearfix">
+							<span>Status Code</span>
+						</div>
+						<div class="text-item">状态码 说明</div>
+						<div class="text-item">200 请求成功</div>
+						<div class="text-item">404 请求资源不存在</div>
+						<div class="text-item">405 请求方法错误</div>
+					</el-card>
+					<div style="display: flex; margin-left: 20px; align-items: center; justify-content: space-around;">
+						<el-button type="primary " @click="showAddPage()" size="small">新增</el-button>
+						<a id="download" @click="saveJson">下载</a>
+						<el-upload class="upload" :auto-upload="false" :on-change="openFile" :file-list="filelist">
+							<el-button size="small" type="primary">上传</el-button>
+						</el-upload>
+
+					</div>
+				</div>
+
+				<div class="main-api" v-for='(item, keyName) in infos'>
+					<div :class="keyName"></div>
+					<div :class="'main-api-top-color-'+item.method" class="main-api-top"
+						@click="showDetailApi(keyName)">
+						<div :class="'method-'+item.method" class="main-api-top_method">{{item.method}}</div>
+						<div class="main-api-top_url">{{item.url}}</div>
+						<div class="main-api-top_summary">{{item.summary}}</div>
+						<el-button style="padding: 5px 10px" type="text"
+							@click="deleteApi(item.url,item.method)">删除</el-button>
+					</div>
+					<div :class="'main-api-top-color-'+item.method" class="main-api-content" v-show="item.isShow">
+						<div class="main-module main-split">module: &nbsp &nbsp {{item.module}}</div>
+						<div class="main-url main-split">url: &nbsp &nbsp &nbsp &nbsp &nbsp {{item.url}}</div>
+						<div class="main-method main-split">method: &nbsp &nbsp {{item.method}}</div>
+						<div class="main-summary main-split">summary: &nbsp &nbsp {{item.summary}}</div>
+						<div class="main-description main-split">description: &nbsp &nbsp{{item.description}}</div>
+						<div class="main-card">
+							<div class="main-card_left">
+								<div class="main-card_request_head">Request</div>
+								<div class="main-card_request_body" v-for='(v, k) in item.request'>
+									<div class="main-card_content_top">
+										{{k}}
+										<div class="main-card_content_kv" v-for="item in v">
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">参数名</div>
+												<div class="main-card-content_word">{{item.keyName}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">参数说明</div>
+												<div class="main-card-content_word">{{item.keyDescription}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值类型</div>
+												<div class="main-card-content_word">{{item.valueType}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值范围</div>
+												<div class="main-card-content_word">{{item.valueRange}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值示例</div>
+												<div class="main-card-content_word">{{item.valueDemo}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">ext</div>
+												<div class="main-card-content_word">{{item.ext}}</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="main-card_request_head">Rsponse</div>
+								<div class="main-card_request_body" v-for='(v, k) in item.response'>
+									<div class="main-card_content_top">
+										{{k}}
+										<div class="main-card_content_kv" v-for="item in v">
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">参数名</div>
+												<div class="main-card-content_word">{{item.keyName}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">参数说明</div>
+												<div class="main-card-content_word">{{item.keyDescription}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值类型</div>
+												<div class="main-card-content_word">{{item.valueType}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值范围</div>
+												<div class="main-card-content_word">{{item.valueRange}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">值示例</div>
+												<div class="main-card-content_word">{{item.valueDemo}}</div>
+											</div>
+											<div class="main-card_content_kv_card">
+												<div class="main-card-content_name">ext</div>
+												<div class="main-card-content_word">{{item.ext}}</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="main-card_right" v-if="showDemo">
+								<div class="main-card_right_content">
+									<div class="main-card_request_head">Request</div>
+									<div v-for="(v, k) in demos[keyName].request">
+										<div>{{ k }}</div>
+										<textarea>{{ JSON.stringify(v, null, 2) }}</textarea>
+									</div>
+									<div class="main-card_request_head">Response</div>
+									<div v-for="(v, k) in demos[keyName].response">
+										<div>{{ k }}</div>
+										<textarea>{{ JSON.stringify(v, null, 2) }}</textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</template>
+			<template v-if="goAdding">
+				<div class="add-content">
+					<div class="add-name">url:</div>
+					<el-input v-model="tempInfo.url" placeholder="请输入url" class="add-content_input"></el-input>
+				</div>
+				<div class="add-content">
+					<div class="add-name">module:</div>
+					<el-select v-model="tempInfo.module" filterable="true" allow-create placeholder="请输入或选择"
+						@blur="addModule" @change="showModuleMessage($event)">
+						<el-option v-for="item in select.module" :key="item" :value="item">
+						</el-option>
+					</el-select>
+				</div>
+				<div class="add-content">
+					<div class="add-name">method:</div>
+					<el-select v-model="tempInfo.method" filterable="true" allow-create placeholder="请输入或选择"
+						@blur="addMethod">
+						<el-option v-for="item in select.method" :key="item" :value="item">
+						</el-option>
+					</el-select>
+				</div>
+				<div class="add-content">
+					<div class="add-name">summary:</div>
+					<el-input v-model="tempInfo.summary" placeholder="请输入摘要" class="add-content_input"></el-input>
+				</div>
+				<div class="add-content">
+					<div class="add-name">description:</div>
+					<el-input v-model="tempInfo.description" placeholder="请输入说明" class="add-content_input"></el-input>
+				</div>
+
+				<div class="add-contentType">Request</div>
+				<div v-for="(item1, method) in this.tempInfo.request" style="background-color:#f4f4f4">
+					<div class="add-contnet_names">
+						<div class="add-paramType">{{method}}</div>
+						<el-button type="primary" icon="el-icon-plus" size="mini"
+							style="background-color: white; color: #008080;" @click="addReqHeaders(method)"
+							 ></el-button>
+					</div>
+					<!-- item1===header级别，method为index -->
+					<div v-for="(item2, name) in item1" class="add-content_fors add-content" :key="name">
+						<!-- header下的多个参数 -->
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数名keyName</div>
+							<el-input v-model="item2.keyName" placeholder="请输入参数名"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数类型keyType</div>
+							<el-input placeholder="请输入参数类型" value="string" :disabled="true"  >
+							</el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数说明keyDescription</div>
+							<el-input v-model="item2.keyDescription" placeholder="请输入参数说明"  ></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值类型valueType</div>
+							<el-select v-model="item2.valueType" filterable="true" allow-create placeholder="请输入或选择"
+								@blur="addReqValueType($event, method, name)">
+								<el-option v-for="content in select.valueType" :key="content" :value="content">
+								</el-option>
+							</el-select>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值范围valueRange</div>
+							<el-input v-model="item2.valueRange" placeholder="请输入值范围"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值示例demo</div>
+							<el-input v-model="item2.valueDemo" placeholder="请输入值示例"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">ext</div>
+							<el-input v-model="item2.ext" placeholder="请输入示例"></el-input>
+						</div>
+					</div>
+				</div>
+
+				<div class="add-contentType">Response</div>
+				<div v-for="(item1, method) in this.tempInfo.response" style="background-color:#f4f4f4">
+					<div class="add-contnet_names">
+						<div class="add-paramType">{{method}}</div>
+						<el-button type="primary" icon="el-icon-plus" size="mini"
+							style="background-color: white; color: #008080;" @click="addResHeaders(method)"
+							 ></el-button>
+					</div>
+					<!-- item1===header级别，method为index -->
+					<div v-for="(item2, name) in item1" class="add-content_fors add-content" :key="name">
+						<!-- header下的多个参数 -->
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数名keyName</div>
+							<el-input v-model="item2.keyName" placeholder="请输入参数名"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数类型keyType</div>
+							<el-input placeholder="请输入参数类型" value="string" :disabled="true"  >
+							</el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">参数说明keyDescription</div>
+							<el-input v-model="item2.keyDescription" placeholder="请输入参数说明"  ></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值类型valueType</div>
+							<el-select v-model="item2.valueType" filterable="true" allow-create placeholder="请输入或选择"
+								@blur="addResValueType($event, method, name)">
+								<el-option v-for="content in select.valueType" :key="content" :value="content">
+								</el-option>
+							</el-select>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值范围valueRange</div>
+							<el-input v-model="item2.valueRange" placeholder="请输入值范围"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">值示例demo</div>
+							<el-input v-model="item2.valueDemo" placeholder="请输入值示例"></el-input>
+						</div>
+						<div class="add-content_title_piece">
+							<div class="add-content_title_name">ext</div>
+							<el-input v-model="item2.ext" placeholder="请输入示例"></el-input>
+						</div>
+					</div>
+				</div>
+
+				<el-button type="primary" plain @click="addNewApi()">保存</el-button>
+				<el-button type="info" plain @click="back2Index()">取消</el-button>
+			</template>
+		</div>
+		<el-backtop></el-backtop>
+	</div>
+
+</body>
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			value: {
+				method: '',
+				module: '',
+				valueType: '',
+			},
+			filelist: [],
+			// meta: {
+			// 	select: {},
+			// 	infos: {},
+			// 	demos: {}
+			// },
+			valueType: [],
+			tempInfo: {},
+			demos: {},
+			goAdding: false,
+			showDemo: false,
+			select: {
+				// 模块名
+				module: [],
+				// 请求方法
+				method: [],
+				// 参数类型
+				paramType: [],
+				// 数值类型
+				valueType: [],
+
+			},
+			infos: {},
+		},
+		mounted() {
+			this.metaInit()
+			this.getDataFromLocal()
+		},
+		watch: {
+			'tempInfo': {
+				handler(newValue, oldValue) {
+					this.$forceUpdate()
+					localStorage.removeItem('tempInfos')
+					localStorage.setItem('tempInfo', JSON.stringify(this.tempInfo))
+					if (this.tempInfo.module && this.tempInfo.module != '') {
+						this.selectSet('module', this.tempInfo.module)
+					}
+					if (this.tempInfo.method && this.tempInfo != '') {
+						this.selectSet('method', this.tempInfo.method)
+					}
+					if (this.tempInfo.paramType && this.tempInfo.paramType != '') {
+						this.selectSet('paramType', this.tempInfo.paramType)
+					}
+					if (this.tempInfo.paramType && this.tempInfo.valueType != '') {
+						this.selectSet('valueType', this.tempInfo.valueType)
+					}
+				},
+				deep: true,
+			},
+		},
+		methods: {
+			getDataFromLocal() {
+				if (localStorage['infos']) {
+					this.infos = JSON.parse(localStorage['infos'])
+					// this.select = JSON.parse(localStorage['select'])
+				}
+				if (localStorage['tempInfo']) {
+					this.tempInfo = JSON.parse(localStorage['tempInfo'])
+				}
+				this.getDemosData()//最后执行
+			},
+			metaInit() {
+				this.selectGet = this.selectGet('method')
+				this.infos = this.infosGet()
+				//从local获取数据后生成demo
+			},
+
+			infosGet() {
+				let infos = {
+				}
+				return infos
+			},
+			del(url, method) {
+				delete this.infos[this.keyGen(url, method)]
+			},
+			keyGen(url, method) {
+				// return this.uuidGen();
+				return `${url} ${method}`
+				// return '/user/add POST'
+			},
+			tempInfoGen() {
+				this.tempInfo = {
+					isShow: false,
+					url: "",
+					method: "",
+					module: "",
+					summary: "",
+					description: "",
+					request: {
+						header: {
+
+						},
+						path: {
+
+						},
+						query: {
+
+						},
+						parameter: {
+
+						},
+					},
+					response: {
+						header: {
+
+						},
+						path: {
+
+						},
+						query: {
+	
+						},
+						parameter: {
+
+						},
+					},
+				}
+			},
+			selectSet(mod, key) {
+				// mod: 所属模块名
+				// key: 要添加的关键字名称
+				// 示例: set("module", "用户管理")
+				if (this.select[mod].includes(key)) {
+					return
+				}
+				this.select[mod].push(key)
+			},
+
+			selectGet(mod) {
+				// 需返回数组结构。 其他结构渲染下拉框会报错。
+				// return [...this.select[mod]]  
+				return this.select[mod]
+			},
+			selectDel(mod, key) {
+				// mod: 所属模块名
+				// key: 要添加的关键字名称
+				// 示例: del("module", "用户管理")
+				this.select[mod].delete(key)
+				// TODO: delete related key in INFO{}
+				let index = this.select[mod].indexOf(key)
+				if (index !== -1) {
+					this.select[mod].splice(index, 1)
+				}
+			},
+			getDemosData() {
+				for (key in this.infos) {
+					this.getDemoData(key)
+				}
+
+			},
+			getDemoData(key) {
+				var demo = {
+					request: {},
+					response: {}
+				}
+				var req = this.infos[key].request
+				console.log(req)
+				//key1: header,path...
+				//key2: keyName1,keyName2...
+				for (var key1 in req) {
+					demo.request[key1] = {}
+					for (var key2 in req[key1]) {
+						demo.request[key1][key2] = req[key1][key2].valueDemo
+					}
+				}
+
+				var req = this.infos[key].response
+				//key1: header,path...
+				//key2: keyName1,keyName2...
+				for (var key1 in req) {
+					demo.response[key1] = {}
+					for (var key2 in req[key1]) {
+						demo.response[key1][key2] = req[key1][key2].valueDemo
+					}
+				}
+				this.demos[key] = demo
+				if (this.showDemo === false) {
+					this.showDemo = true
+				}
+			},
+			showDetailApi(key) {
+				this.getDemoData(key)
+				this.infos[key].isShow = !this.infos[key].isShow
+			},
+			demoGen(key) {
+				var demo = {
+					request: {},
+					response: {}
+				}
+				var req = this.infos[key].request
+				//key1: header,path...
+				//key2: keyName1,keyName2...
+				for (var key1 in req) {
+					demo.request[key1] = {}
+					for (var key2 in req[key1]) {
+						demo.request[key1][key2] = req[key1][key2].valueDemo
+					}
+				}
+				var res = this.infos[key].response
+				//key1: header,path...
+				//key2: keyName1,keyName2...
+				for (var key1 in res) {
+					demo.response[key1] = {}
+					for (var key2 in res[key1]) {
+						demo.response[key1][key2] = res[key1][key2].valueDemo
+					}
+				}
+				console.log(demo)
+				this.demos[key] = demo
+			},
+			add(url, method, info) {
+				let key = this.keyGen(url, method)
+				this.infos[key] = info
+				this.demoGen(key)
+
+			},
+			deleteApi(url, method) {
+				event.stopPropagation()
+				this.$confirm('此操作将永久删除这个API, 是否继续?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.del(url, method)
+					localStorage.removeItem('infos')
+					localStorage.setItem('infos', JSON.stringify(this.infos))
+					this.$forceUpdate()
+					this.$message({
+						type: 'success',
+						message: '删除成功!'
+					});
+				}).catch(() => {
+					this.$message({
+						type: 'info',
+						message: '已取消删除'
+					});
+				});
+			},
+			showAddPage() {
+				if (localStorage['tempInfo']) {
+					this.tempInfo = JSON.parse(localStorage['tempInfo'])
+				} else {
+					this.tempInfoGen()
+				}
+				this.goAdding = true
+			},
+			addNewApi() {
+				if (this.tempInfo) {
+					this.add(this.tempInfo.url, this.tempInfo.method, this.tempInfo)
+				}
+
+				//监听中已经实时添加
+				// this.selectSet('module', this.tempInfo.module)
+				// this.selectSet('method', this.tempInfo.method)
+				// this.selectSet('paramType', this.tempInfo.paramType)
+				// this.selectSet('valueType', this.tempInfo.valueType)
+				this.$forceUpdate()
+				this.goAdding = false
+				this.tempInfoGen()
+				localStorage.removeItem('infos')
+				localStorage.removeItem('tempInfo')
+				localStorage.removeItem('select')
+				localStorage.setItem('infos', JSON.stringify(this.infos))
+				localStorage.setItem('select', JSON.stringify(this.select))
+			},
+			back2Index() {
+				this.goAdding = false
+				localStorage.removeItem('tempInfo')
+				this.tempInfoGen()
+			},
+			addReqValueType(e, type, keyName) {
+				if (!e.target.value) return
+
+				this.tempInfo.request[type][keyName].valueType = e.target.value
+
+				this.selectSet('valueType', e.target.value)
+				this.$forceUpdate()
+			},
+			addResValueType(e, type, keyName) {
+				if (!e.target.value) return
+
+				this.tempInfo.response[type][keyName].valueType = e.target.value
+
+				this.selectSet('valueType', e.target.value)
+				this.$forceUpdate()
+			},
+			addReqHeaders(method) {
+				var cont = {
+					keyType: "",
+					keyDescription: "",
+					valueType: "",
+					valueRange: "",
+					valueDemo: "",
+					ext: "",
+				}
+				//添加时必须先输入keyName
+				this.$prompt('请先输入keyName', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+				}).then(({ value }) => {
+					this.$set(this.tempInfo.request[method], value, cont)
+					this.$set(this.tempInfo.request[method][value], 'keyName', value)
+				}).catch(() => {
+
+				});
+
+				this.$forceUpdate()
+			},
+			addResHeaders(method) {
+				var cont = {
+					keyType: "",
+					keyDescription: "",
+					valueType: "",
+					valueRange: "",
+					valueDemo: "",
+					ext: "",
+				}
+				//添加时必须先输入keyName
+				this.$prompt('请先输入keyName', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+				}).then(({ value }) => {
+					this.$set(this.tempInfo.response[method], value, cont)
+					this.$set(this.tempInfo.response[method][value], 'keyName', value)
+				}).catch(() => {
+
+				});
+
+				this.$forceUpdate()
+			},
+			addMethod(e) {
+				if (!e.target.value) return
+
+				this.tempInfo.method = e.target.value
+				this.selectSet('method', e.target.value)
+				this.$forceUpdate()
+			},
+			addModule(e) {
+				if (!e.target.value) return
+
+				this.tempInfo.module = e.target.value
+				this.selectSet('module', e.target.value)
+				this.$forceUpdate()
+			},
+
+			saveJson() {
+				const link = document.querySelector('#download')
+				let info = {}
+				info.infos = this.infos
+				info.select = this.select
+				const content = JSON.stringify(info, null, 2)
+				const blob = new Blob([content], {
+					type: 'text/plain'
+				})
+				link.download = 'infos.json'
+				link.href = URL.createObjectURL(blob)
+			},
+			openFile(file, fileList) {
+				let reader = new FileReader()
+				// reader.readAsBinaryString(file.raw)
+				reader.readAsText(file.raw)
+				reader.onload = function () {
+					if (reader.result) {
+						app.infos = JSON.parse(reader.result).infos
+						localStorage.setItem('infos', JSON.stringify(app.infos))
+						app.select = JSON.parse(reader.result).select
+						localStorage.setItem('select', JSON.stringify(app.select))
+					}
+				}
+			}
+		},
+	})
+</script>
+<style>
+	body {
+		font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+	}
+
+	#download {
+		background: #409eff;
+		border-color: #66b1ff;
+		font-size: 12px;
+		border: 1px solid #FFF;
+		color: #FFF;
+		outline: 0;
+		margin: 0;
+		Cursor: pointer;
+		transition: .1s;
+		border-radius: 4px;
+		height: 32px;
+		width: 56px;
+		text-align: center;
+		line-height: 32px;
+	}
+
+	#download:focus,
+	#download:hover {
+		color: #409EFF;
+		border-color: #c6e2ff;
+		background-color: #ecf5ff;
+	}
+
+	.header {
+		padding-left: 20px;
+	}
+
+	.bg-purple-dark {
+		background: #99a9bf;
+	}
+
+	.bg-purple {
+		background: #d3dce6;
+	}
+
+	.bg-purple-light {
+		background: #e5e9f2;
+	}
+
+	.grid-content {
+		border-radius: 4px;
+		min-height: 40px;
+		display: flex;
+	}
+
+	.nav {
+		margin-left: 20px;
+		color: white;
+		padding: 10px 0;
+	}
+
+	.header {
+		background-color: #B3C0D1;
+		color: #333;
+		line-height: 60px;
+	}
+
+
+	.container {
+		color: #333;
+
+	}
+
+	.el-main {
+		background-color: #E9EEF3;
+		color: #333;
+		text-align: center;
+		line-height: 160px;
+	}
+
+	body>.el-container {
+		margin-bottom: 40px;
+	}
+
+	.main-card {
+		display: flex;
+	}
+
+	.main-card_content_kv {
+		display: flex;
+	}
+
+	.main-card_content_kv_card {
+		margin: 10px;
+		width: 120%;
+	}
+
+	.main-api-top {
+		display: flex;
+		align-items: center;
+		border-radius: 10px;
+		margin-top: 8px;
+	}
+
+	.main-api-top-color-POST {
+		border: 1px solid #409eff;
+		background-color: rgba(64, 158, 255, 0.1);
+	}
+
+	.main-api-top-color-GET {
+		border: 1px solid #67C23A;
+		background-color: rgba(103, 194, 58, 0.1);
+	}
+
+	.main-api-top-color-DELETE {
+		border: 1px solid #f56c6c;
+		background-color: rgba(245, 108, 108, 0.1);
+	}
+
+	.main-api-top-color-PUT {
+		border: 1px solid #e6a23c;
+		background-color: rgba(230, 162, 60, 0.1);
+	}
+
+	.main-api-top_url {
+		height: 100%;
+		letter-spacing: 2px;
+		color: black;
+	}
+
+	.main-api-top_summary {
+		margin-left: 10px;
+		font-size: 16px;
+		height: 100%;
+		color: #333;
+	}
+
+	.main-api-top_method {
+		border-radius: 5px;
+		text-align: center;
+		width: 70px;
+		padding: 5px;
+		margin: 10px;
+		color: white;
+		font-size: 16px;
+		height: 25px;
+		line-height: 25px;
+	}
+
+	.method-GET {
+		background-color: #67C23A;
+	}
+
+	.method-POST {
+		background-color: #409eff;
+	}
+
+	.method-DELETE {
+		background-color: #f56c6c;
+	}
+
+	.method-PUT {
+		background-color: #e6a23c;
+	}
+
+	.main-split {
+		margin: 15px 0 5px 10px;
+		letter-spacing: 2px;
+	}
+
+	.main-api-content {
+		border-radius: 10px;
+		padding: 20px 0 0 20px;
+	}
+
+	.main-card_request_body {
+		margin-left: 30px;
+		font-size: 18px;
+	}
+
+	.main-card_left {
+		width: 50%;
+	}
+
+	.main-card_right {
+		position: relative;
+		top: -120px;
+		left: 260px;
+	}
+
+	.main-card_request_head {
+		margin: 20px 0 10px 0;
+		background-color: rgb(198, 226, 255);
+		height: 30px;
+		width: 200px;
+		border-radius: 5px;
+		line-height: 30px;
+		color: #352e2e;
+		padding-left: 15px;
+	}
+
+	.main-card_content_kv_card {
+		border: 1px solid #99a9bf;
+		border-radius: 5px;
+		overflow: hidden;
+	}
+
+	.main-card-content_name {
+		width: 100%;
+		border-bottom: 1px solid #333;
+		padding: 5px;
+	}
+
+	.main-card-content_word {
+		padding: 3px;
+		color: #00008b;
+	}
+
+	.main-card_right_content {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.main-card_right_top {
+		background-color: white;
+		color: #008080;
+		font-size: 20px;
+		text-align: center;
+		border-radius: 5px;
+		height: 40px;
+		line-height: 40px;
+	}
+
+	.main-card_right_name {
+		margin: 10px;
+		font-size: 18px;
+	}
+
+	.main-card_right_input {
+		margin-left: 20px;
+	}
+
+	.add-content_fors {
+		border: 1px solid #67C23A;
+		border-radius: 5px;
+		margin: 5px;
+	}
+
+	.add-content {
+		margin: 10px 0 5px 10px;
+	}
+
+	.add-contentType {
+		font-size: 24px;
+		background-color: #8cc5ff;
+		border-radius: 5px;
+		color: white;
+		height: 50px;
+		line-height: 50px;
+		padding-left: 20px;
+		margin-top: 30px;
+	}
+
+	.add-name {
+		text-align: center;
+		height: 40px;
+		line-height: 40px;
+		margin-right: 15px;
+	}
+
+	.add-content_title_name {
+		text-align: center;
+		margin: 5px auto;
+	}
+
+	.add-content {
+		display: flex;
+	}
+
+	.add-contnet_names {
+		display: flex;
+		padding: 10px;
+		width: 20%;
+		background: #d7e6f7;
+		border-radius: 20px;
+		margin-top: 15px;
+	}
+
+	.add-paramType {
+		font-size: 20px;
+		height: 40px;
+		line-height: 40px;
+		margin: 0 20px;
+	}
+
+	.add-content_title_piece {
+		margin: 10px 0 5px 10px;
+	}
+</style>
+
+</html>
